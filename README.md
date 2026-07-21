@@ -1,48 +1,48 @@
 # jekyll-front-matter-validator
 
-Gem que valida o front matter dos seus posts/páginas Jekyll e avisa (ou
-quebra o build) quando algo vai dar problema:
+Gem that validates the front matter of your Jekyll posts/pages and warns
+(or breaks the build) when something is wrong:
 
-- campo obrigatório faltando
-- tipo errado (`date` que não é data, `tags` que não é array...)
-- valor fora de uma lista permitida (`layout` inválido, por exemplo)
-- campo que deveria ser um **slug** (sem acento, sem espaço, sem
-  maiúscula) mas não é
-- campo cujo valor deveria ter um **asset correspondente** em disco
-  (ex.: `cover_image: "gatos-fofos"` deveria existir em
-  `assets/images/gatos-fofos.jpg`) e o arquivo não existe
+- required field missing
+- wrong type (`date` that isn't a date, `tags` that isn't an array...)
+- value outside an allowed list (`layout` is invalid, for example)
+- field that should be a **slug** (no accents, no spaces, no uppercase)
+  but isn't
+- field whose value should have a **matching asset** on disk
+  (e.g. `cover_image: "cute-cats"` should exist at
+  `assets/images/cute-cats.jpg`) but the file doesn't exist
 
-Roda automaticamente em `jekyll build` e `jekyll serve`, e também dá pra
-usar como CLI standalone (bom para o hook de `pre-commit` do git).
+Runs automatically on `jekyll build` and `jekyll serve`, and can also be
+used as a standalone CLI (useful for git `pre-commit` hooks).
 
-## Estrutura do gem
+## Gem structure
 
 ```
 lib/
-  jekyll-front-matter-validator.rb              # ponto de entrada
+  jekyll-front-matter-validator.rb              # entry point
   jekyll/front_matter_validator/
     version.rb
-    core.rb            # toda a lógica de validação (sem depender do Jekyll)
-    jekyll_hook.rb      # hook :site, :pre_render (só carrega se Jekyll existir)
+    core.rb            # all validation logic (no Jekyll dependency)
+    jekyll_hook.rb      # hook :site, :pre_render (only loads if Jekyll exists)
 exe/
-  fmv-validate          # CLI standalone
-examples/site-integration/   # arquivos para copiar no repo do SEU SITE
+  fmv-validate          # standalone CLI
+examples/site-integration/   # files to copy into YOUR SITE's repo
   Gemfile.example
   _config.yml.example
   .githooks/pre-commit
   bin/install-git-hooks.sh
 ```
 
-## 1. Instalação no seu site Jekyll
+## 1. Installation in your Jekyll site
 
-Ainda sem publicar no RubyGems, a forma mais simples é vendorizar o gem
-dentro do repo do site:
+Not yet published on RubyGems, the simplest approach is to vendor the gem
+inside the site repo:
 
 ```bash
 cp -r jekyll-front-matter-validator vendor/jekyll-front-matter-validator
 ```
 
-No `Gemfile` do site (veja `examples/site-integration/Gemfile.example`):
+In the site's `Gemfile` (see `examples/site-integration/Gemfile.example`):
 
 ```ruby
 group :jekyll_plugins do
@@ -54,74 +54,73 @@ end
 bundle install
 ```
 
-Depois cole o conteúdo de `examples/site-integration/_config.yml.example`
-no `_config.yml` do site, ajustando as regras.
+Then paste the contents of `examples/site-integration/_config.yml.example`
+into the site's `_config.yml`, adjusting the rules.
 
-> Alternativas: `git:` apontando pra um repositório, ou publicar no
-> RubyGems e usar `gem "jekyll-front-matter-validator", "~> 0.2"` normal.
-> Veja o `Gemfile.example` pros três formatos.
+> Alternatives: `git:` pointing to a repository, or publish to
+> RubyGems and use `gem "jekyll-front-matter-validator", "~> 0.2"` normally.
+> See `Gemfile.example` for all three formats.
 
-## 2. Validação em `build` e `serve`
+## 2. Validation on `build` and `serve`
 
-Não precisa fazer mais nada — o Bundler carrega o gem, e o hook
-`:site, :pre_render` roda tanto em `jekyll build` quanto em
-`jekyll serve` (inclusive a cada regeneração do `--watch`, que é o
-padrão do serve).
+No extra steps needed — Bundler loads the gem, and the
+`:site, :pre_render` hook runs on both `jekyll build` and
+`jekyll serve` (including on every `--watch` regeneration).
 
 ```bash
 bundle exec jekyll build
-# ou
+# or
 bundle exec jekyll serve
 ```
 
-Se algo estiver inválido e `fail_build_on_error: true` (padrão), o build
-para com algo assim:
+If something is invalid and `fail_build_on_error: true` (default), the
+build stops with output like:
 
 ```
-FrontMatterValidator: 3 problema(s) encontrado(s) no front matter
-  [ERROR] _posts/2026-01-06-post.md -> slug: esperado tipo 'slug' (esperado algo como 'meu-slug-sem-acento', sem espaço/maiúscula), recebido "Meu Post!"
-  [ERROR] _posts/2026-01-06-post.md -> cover_image: nenhum asset encontrado em 'assets/images/gatos-fofos.{jpg,jpeg,png,webp}'
-  [ERROR] _posts/2026-01-06-post.md -> layout: valor "artigo" fora da lista permitida ["post", "article"]
+FrontMatterValidator: 3 issue(s) found in front matter
+  [ERROR] _posts/2026-01-06-post.md -> slug: expected type 'slug' (expected a slug-like value, e.g. 'my-slug', no spaces/uppercase), got "My Post!"
+  [ERROR] _posts/2026-01-06-post.md -> cover_image: no matching asset found at 'assets/images/cute-cats.{jpg,jpeg,png,webp}'
+  [ERROR] _posts/2026-01-06-post.md -> layout: value "article" not in allowed list ["post", "article"]
 ```
 
-Para só avisar sem quebrar o build, use `fail_build_on_error: false`.
+To warn without breaking the build, use `fail_build_on_error: false`.
 
-## 3. Hook de pre-commit do git
+## 3. Git pre-commit hook
 
-Copie a pasta `.githooks/` e o `bin/install-git-hooks.sh` de
-`examples/site-integration/` para o repo do site, então:
+Copy the `.githooks/` folder and `bin/install-git-hooks.sh` from
+`examples/site-integration/` into the site repo, then:
 
 ```bash
 ./bin/install-git-hooks.sh
 ```
 
-Isso configura `core.hooksPath` para `.githooks/`. A partir daí, todo
-`git commit` roda `bundle exec fmv-validate --staged`, validando só os
-arquivos staged, e bloqueia o commit se algo estiver errado.
+This sets `core.hooksPath` to `.githooks/`. From then on, every
+`git commit` runs `bundle exec fmv-validate --staged`, validating only
+staged files, and blocks the commit if anything is wrong.
 
-Para desativar: `git config --unset core.hooksPath`.
+To disable: `git config --unset core.hooksPath`.
 
-## 4. CLI manual
+## 4. Manual CLI
 
 ```bash
-bundle exec fmv-validate              # valida tudo no projeto
-bundle exec fmv-validate --staged      # só os arquivos staged no git
-bundle exec fmv-validate caminho.md    # arquivo(s) específico(s)
+bundle exec fmv-validate              # validates everything in the project
+bundle exec fmv-validate --staged     # only git-staged files
+bundle exec fmv-validate path.md      # specific file(s)
 ```
 
-## Referência do schema (`front_matter_schema` no `_config.yml`)
+## Schema reference (`front_matter_schema` in `_config.yml`)
 
 ```yaml
 front_matter_schema:
-  fail_build_on_error: true   # false = só avisa, não quebra o build
+  fail_build_on_error: true   # false = warn only, don't break the build
 
-  defaults:                   # aplicado a tudo que não bate com collections
+  defaults:                   # applied to everything not matched by collections
     required: [title]
     types: { title: string }
 
   collections:
     posts:
-      path: _posts             # prefixo de caminho que identifica essa collection
+      path: _posts             # path prefix that identifies this collection
       required: [title, date, slug]
       types:
         date: date
@@ -138,20 +137,20 @@ front_matter_schema:
           slugify: true
 ```
 
-### Tipos suportados em `types:`
+### Supported types in `types:`
 
 `string`, `integer`, `float`, `boolean`, `array`, `hash`, `date`, `slug`.
 
-`slug` valida contra `/\A[a-z0-9]+(-[a-z0-9]+)*\z/` — ou seja, só
-minúsculas, números e hífen, sem acento e sem espaço.
+`slug` validates against `/\A[a-z0-9]+(-[a-z0-9]+)*\z/` — i.e. lowercase
+letters, digits, and hyphens only, no accents or spaces.
 
-### `assets:` — checando se existe um arquivo correspondente
+### `assets:` — checking for matching files
 
-Para cada campo listado em `assets`, o validador monta um caminho
-esperado a partir do valor do campo e confere se existe algum arquivo
-batendo com ele. Duas formas de configurar:
+For each field listed in `assets`, the validator builds an expected path
+from the field value and checks whether a matching file exists. Two
+configuration styles:
 
-**`dir` + `extensions`** (mais simples, um arquivo direto numa pasta):
+**`dir` + `extensions`** (simpler, a file directly in a folder):
 
 ```yaml
 assets:
@@ -159,38 +158,38 @@ assets:
     dir: assets/images
     extensions: [jpg, jpeg, png, webp]
 ```
-`cover_image: "gatos-fofos"` → procura `assets/images/gatos-fofos.{jpg,jpeg,png,webp}`.
+`cover_image: "cute-cats"` → looks for `assets/images/cute-cats.{jpg,jpeg,png,webp}`.
 
-**`pattern`** (mais flexível, com `{value}` como placeholder — útil
-para estrutura em subpasta):
+**`pattern`** (more flexible, with `{value}` as a placeholder — useful
+for subdirectory structures):
 
 ```yaml
 assets:
   slug:
     pattern: "assets/posts/{value}/cover.*"
 ```
-`slug: "meu-post"` → procura `assets/posts/meu-post/cover.*`.
+`slug: "my-post"` → looks for `assets/posts/my-post/cover.*`.
 
-Em ambos os casos, `slugify: true` normaliza o valor do campo (remove
-acento, baixa a caixa, troca espaço por hífen) antes de montar o
-caminho — útil quando o campo usado para gerar o nome do arquivo não é
-ele mesmo um slug (ex.: usar o `title` para achar a imagem).
+In both cases, `slugify: true` normalizes the field value (strips
+accents, downcases, replaces spaces with hyphens) before building the
+path — useful when the field used to derive the filename isn't itself a
+slug (e.g. using `title` to find the image).
 
-### Como as regras são escolhidas por arquivo
+### How rules are selected per file
 
-Para cada arquivo, o validador procura em `front_matter_schema.collections`
-uma entrada cujo `path` seja prefixo do caminho do arquivo (ex.: `_posts`
-casa com `_posts/2026-01-05-ola.md`). Se nenhuma bater, usa
-`front_matter_schema.defaults`. As regras de `defaults` sempre são
-mescladas com as da collection encontrada (campos obrigatórios se somam,
-tipos/enums/assets específicos se combinam com os de default).
+For each file, the validator looks in `front_matter_schema.collections`
+for an entry whose `path` is a prefix of the file's path (e.g. `_posts`
+matches `_posts/2026-01-05-hello.md`). If none matches, it uses
+`front_matter_schema.defaults`. The `defaults` rules are always merged
+with the matched collection's rules ( required fields are summed,
+types/enums/assets are combined with the defaults).
 
-## Rodando os testes do gem em si
+## Running the gem's own tests
 
 ```bash
-bundle exec rspec   # se você adicionar specs em spec/
+bundle exec rspec   # if you add specs in spec/
 ```
 
-(Não veio com specs prontos neste esqueleto — o núcleo em
-`lib/jekyll/front_matter_validator/core.rb` é puro Ruby, fácil de
-testar isoladamente com `require_relative` + fixtures de front matter.)
+(The gem doesn't ship with ready-made specs — the core in
+`lib/jekyll/front_matter_validator/core.rb` is pure Ruby and easy to
+test in isolation with `require_relative` + front matter fixtures.)
