@@ -5,5 +5,5 @@ ROOT="$(git rev-parse --show-toplevel)"
 chmod +x "$ROOT/.githooks/pre-commit"
 git config core.hooksPath .githooks
 
-echo "✅ Git hooks instalados (core.hooksPath = .githooks)."
-echo "   Rode 'git config --unset core.hooksPath' para desativar."
+echo "✅ Git hooks installed (core.hooksPath = .githooks)."
+echo "   Run 'git config --unset core.hooksPath' to disable."

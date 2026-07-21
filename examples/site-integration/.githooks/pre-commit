@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-echo "🔍 Validando front matter dos arquivos staged..."
+echo "🔍 Validating front matter of staged files..."
 bundle exec fmv-validate --staged
 STATUS=$?
 
 if [ $STATUS -ne 0 ]; then
-  echo "❌ Commit bloqueado: corrija o front matter acima antes de commitar."
+  echo "❌ Commit blocked: fix the front matter issues above before committing."
   exit 1
 fi

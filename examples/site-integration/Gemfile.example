@@ -1,16 +1,16 @@
-# Cole/mescle isto no Gemfile do seu SITE Jekyll (não do gem).
+# Paste/merge this into your SITE's Gemfile (not the gem's).
 
 source "https://rubygems.org"
 
 gem "jekyll", "~> 4.3"
 
 group :jekyll_plugins do
-  # Opção A — enquanto não publicar no RubyGems, aponte para uma cópia local:
+  # Option A — while not published on RubyGems, point to a local copy:
   gem "jekyll-front-matter-validator", path: "vendor/jekyll-front-matter-validator"
 
-  # Opção B — direto de um repositório git:
-  # gem "jekyll-front-matter-validator", git: "https://github.com/seu-usuario/jekyll-front-matter-validator"
+  # Option B — directly from a git repository:
+  # gem "jekyll-front-matter-validator", git: "https://github.com/your-user/jekyll-front-matter-validator"
 
-  # Opção C — depois de publicado no RubyGems:
+  # Option C — after publishing to RubyGems:
   # gem "jekyll-front-matter-validator", "~> 0.2"
 end

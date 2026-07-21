@@ -1,11 +1,11 @@
-# Cole isto no _config.yml do seu site (não substitua o arquivo inteiro).
+# Paste this into your site's _config.yml (don't replace the entire file).
 
 front_matter_schema:
-  # Se false, apenas avisa no log mas deixa o build continuar.
+  # If false, only logs a warning but lets the build continue.
   fail_build_on_error: true
 
-  # Regras aplicadas a QUALQUER arquivo que não caia em nenhuma
-  # "collections" abaixo.
+  # Rules applied to ANY file that doesn't match a
+  # "collections" entry below.
   defaults:
     required: [title]
     types:
@@ -20,22 +20,22 @@ front_matter_schema:
         date: date
         tags: array
         published: boolean
-        slug: slug          # valida que é minúsculo, sem acento/espaço
+        slug: slug          # validates lowercase, no accents/spaces
       enum:
         layout: [post, article]
 
-      # Para cada campo listado aqui, confere se existe um arquivo de
-      # asset correspondente ao valor informado no front matter.
+      # For each field listed here, checks whether a matching asset file
+      # exists for the value provided in front matter.
       assets:
-        # front matter: cover_image: "gatos-fofos"
-        # procura por assets/images/gatos-fofos.{jpg,jpeg,png,webp}
+        # front matter: cover_image: "cute-cats"
+        # looks for assets/images/cute-cats.{jpg,jpeg,png,webp}
         cover_image:
           dir: assets/images
           extensions: [jpg, jpeg, png, webp]
 
-        # front matter: slug: "Meu Post Legal"
-        # normaliza pra "meu-post-legal" antes de procurar
-        # em assets/posts/meu-post-legal/cover.*
+        # front matter: slug: "My Cool Post"
+        # normalizes to "my-cool-post" before looking for
+        # assets/posts/my-cool-post/cover.*
         slug:
           pattern: "assets/posts/{value}/cover.*"
           slugify: true
