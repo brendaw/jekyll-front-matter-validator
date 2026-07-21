@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 #
-# Uso:
-#   fmv-validate                # valida tudo no projeto
-#   fmv-validate --staged        # valida só arquivos staged no git
-#   fmv-validate caminho1 caminho2  # valida arquivo(s) específico(s)
+# Usage:
+#   fmv-validate                # validates all files in the project
+#   fmv-validate --staged       # validates only git-staged files
+#   fmv-validate path1 path2    # validates specific file(s)
 #
 require "jekyll-front-matter-validator"
 
@@ -39,7 +39,7 @@ files =
 schema = Jekyll::FrontMatterValidator.load_schema(File.join(root, "_config.yml"))
 
 if schema.empty?
-  warn "Nenhum `front_matter_schema` encontrado em _config.yml — nada para validar."
+  warn "No 'front_matter_schema' found in _config.yml — nothing to validate."
   exit 0
 end
 
@@ -52,10 +52,10 @@ files.each do |path|
   fm, yaml_error = Jekyll::FrontMatterValidator.read_front_matter(path)
 
   if yaml_error
-    all_issues << Jekyll::FrontMatterValidator::Issue.new(rel_path, "(yaml)", "YAML inválido: #{yaml_error}", :error)
+    all_issues << Jekyll::FrontMatterValidator::Issue.new(rel_path, "(yaml)", "Invalid YAML: #{yaml_error}", :error)
     next
   end
-  next if fm.nil? # arquivo sem bloco de front matter, ignora
+  next if fm.nil? # file without front matter, skip
 
   rules = Jekyll::FrontMatterValidator.rules_for(rel_path, schema)
   next unless Jekyll::FrontMatterValidator.has_rules?(rules)
@@ -64,10 +64,10 @@ files.each do |path|
 end
 
 if all_issues.empty?
-  puts "\u2714 Front matter v\u00e1lido em #{files.size} arquivo(s)."
+  puts "\u2714 Front matter valid in #{files.size} file(s)."
   exit 0
 else
-  puts "\u2718 #{all_issues.size} problema(s) de front matter encontrado(s):\n\n"
+  puts "\u2718 #{all_issues.size} front matter issue(s) found:\n\n"
   all_issues.each { |i| puts "  #{i}" }
   puts
   exit 1
