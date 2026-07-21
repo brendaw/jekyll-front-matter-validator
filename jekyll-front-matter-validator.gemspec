@@ -8,10 +8,9 @@ Gem::Specification.new do |spec|
   spec.authors     = ["William Brendaw"]
   spec.email       = ["william@brendaw.net"]
 
-  spec.summary     = "Valida front matter do Jekyll: obrigatórios, tipos, slugs e assets correspondentes."
-  spec.description = "Plugin Jekyll + CLI que valida front matter (campos obrigatórios, tipos, enums, " \
-                      "formato de slug e existência de assets correspondentes) no build, no serve e " \
-                      "como hook de pre-commit do git."
+  spec.summary     = "Validates Jekyll front matter: required fields, types, slugs, and matching assets."
+  spec.description = "Jekyll plugin + CLI that validates front matter (required fields, types, enums, " \
+                      "slug format, and matching assets) on build, serve, and as a git pre-commit hook."
   spec.homepage    = "https://github.com/brendaw/jekyll-front-matter-validator"
   spec.license     = "MIT"
 
