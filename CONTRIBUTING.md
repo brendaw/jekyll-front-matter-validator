@@ -29,10 +29,10 @@ For bug reports or feature requests, [open an Issue](https://github.com/brendaw/
    `lib/jekyll/front_matter_validator/core.rb` (pure Ruby, no Jekyll dependency).
    The Jekyll integration is in `lib/jekyll/front_matter_validator/jekyll_hook.rb`.
 
-4. Run the linter before opening a PR:
+4. Run tests and linter before opening a PR:
 
    ```bash
-   bundle exec rubocop   # if configured
+   bundle exec rspec
    ```
 
 5. Optionally, test the gem locally with a Jekyll site:
@@ -98,6 +98,7 @@ Every pull request and push to `main` runs automated checks:
 |---|---|
 | **Gem build** | Builds the `.gem` package to verify the gemspec is valid |
 | **Syntax check** | Verifies all Ruby files parse correctly |
+| **Unit tests** | Runs RSpec tests against `spec/` |
 
 All checks must pass before a PR can be merged.
 

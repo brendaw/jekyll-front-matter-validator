@@ -35,3 +35,17 @@ jobs:
         run: |
           find lib exe -name '*.rb' -exec ruby -c {} +
           ruby -c jekyll-front-matter-validator.gemspec
+
+  test:
+    name: Unit tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Run RSpec
+        run: bundle exec rspec

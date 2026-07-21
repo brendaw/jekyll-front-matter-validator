@@ -230,9 +230,9 @@ types/enums/assets are combined with the defaults).
 ## Running the gem's own tests
 
 ```bash
-bundle exec rspec   # if you add specs in spec/
+bundle install
+bundle exec rspec
 ```
 
-(The gem doesn't ship with ready-made specs — the core in
-`lib/jekyll/front_matter_validator/core.rb` is pure Ruby and easy to
-test in isolation with `require_relative` + front matter fixtures.)
+Tests cover the core validation logic in `lib/jekyll/front_matter_validator/core.rb`
+(slugify, required/type/enum validation, asset checking, rule matching, YAML parsing).
