@@ -1,4 +1,4 @@
-# jekyll-front_matter_validator
+# jekyll-front-matter-validator
 
 Gem que valida o front matter dos seus posts/páginas Jekyll e avisa (ou
 quebra o build) quando algo vai dar problema:
@@ -19,7 +19,7 @@ usar como CLI standalone (bom para o hook de `pre-commit` do git).
 
 ```
 lib/
-  jekyll-front_matter_validator.rb              # ponto de entrada
+  jekyll-front-matter-validator.rb              # ponto de entrada
   jekyll/front_matter_validator/
     version.rb
     core.rb            # toda a lógica de validação (sem depender do Jekyll)
@@ -39,14 +39,14 @@ Ainda sem publicar no RubyGems, a forma mais simples é vendorizar o gem
 dentro do repo do site:
 
 ```bash
-cp -r jekyll-front_matter_validator vendor/jekyll-front_matter_validator
+cp -r jekyll-front-matter-validator vendor/jekyll-front-matter-validator
 ```
 
 No `Gemfile` do site (veja `examples/site-integration/Gemfile.example`):
 
 ```ruby
 group :jekyll_plugins do
-  gem "jekyll-front_matter_validator", path: "vendor/jekyll-front_matter_validator"
+  gem "jekyll-front-matter-validator", path: "vendor/jekyll-front-matter-validator"
 end
 ```
 
@@ -58,7 +58,7 @@ Depois cole o conteúdo de `examples/site-integration/_config.yml.example`
 no `_config.yml` do site, ajustando as regras.
 
 > Alternativas: `git:` apontando pra um repositório, ou publicar no
-> RubyGems e usar `gem "jekyll-front_matter_validator", "~> 0.2"` normal.
+> RubyGems e usar `gem "jekyll-front-matter-validator", "~> 0.2"` normal.
 > Veja o `Gemfile.example` pros três formatos.
 
 ## 2. Validação em `build` e `serve`

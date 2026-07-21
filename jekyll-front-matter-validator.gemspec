@@ -3,7 +3,7 @@
 require_relative "lib/jekyll/front_matter_validator/version"
 
 Gem::Specification.new do |spec|
-  spec.name        = "jekyll-front_matter_validator"
+  spec.name        = "jekyll-front-matter-validator"
   spec.version     = Jekyll::FrontMatterValidator::VERSION
   spec.authors     = ["William Brendaw"]
   spec.email       = ["william@brendaw.net"]

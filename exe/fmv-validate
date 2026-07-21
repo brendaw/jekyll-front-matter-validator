@@ -6,7 +6,7 @@
 #   fmv-validate --staged        # valida só arquivos staged no git
 #   fmv-validate caminho1 caminho2  # valida arquivo(s) específico(s)
 #
-require "jekyll-front_matter_validator"
+require "jekyll-front-matter-validator"
 
 def project_root
   root = `git rev-parse --show-toplevel 2>/dev/null`.strip
