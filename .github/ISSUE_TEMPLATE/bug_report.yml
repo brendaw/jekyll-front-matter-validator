@@ -1,0 +1,59 @@
+name: Bug Report
+description: Report a problem with the gem
+labels: [bug]
+body:
+  - type: input
+    id: gem-version
+    attributes:
+      label: Gem version
+      placeholder: "e.g. 0.2.0"
+    validations:
+      required: true
+
+  - type: input
+    id: jekyll-version
+    attributes:
+      label: Jekyll version
+      placeholder: "e.g. 4.3.0"
+    validations:
+      required: true
+
+  - type: input
+    id: ruby-version
+    attributes:
+      label: Ruby version
+      placeholder: "e.g. 3.2.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant configuration (optional)
+      description: Paste your `_config.yml` front_matter_schema section if applicable
+      render: yaml
