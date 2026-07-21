@@ -17,9 +17,9 @@ module Jekyll
       end
     end
 
-    # Roda automaticamente em `jekyll build` E `jekyll serve`, porque o
-    # serve dispara o mesmo pipeline de build (e de novo a cada regeneração
-    # quando o --watch detecta mudanças).
+    # Runs automatically on `jekyll build` AND `jekyll serve`, because
+    # serve triggers the same build pipeline (and again on each
+    # regeneration when --watch detects changes).
     Jekyll::Hooks.register :site, :pre_render do |site|
       schema = site.config["front_matter_schema"]
       next if schema.nil? || schema.empty?
@@ -38,15 +38,15 @@ module Jekyll
       end
 
       if all_issues.any?
-        Jekyll.logger.error "FrontMatterValidator:", "#{all_issues.size} problema(s) encontrado(s) no front matter"
+        Jekyll.logger.error "FrontMatterValidator:", "#{all_issues.size} issue(s) found in front matter"
         all_issues.each { |i| Jekyll.logger.error "  ", i.to_s }
 
         if fail_on_error
           raise Jekyll::Errors::FatalException,
-                "Build interrompido: front matter inválido em #{all_issues.map(&:file).uniq.size} arquivo(s)."
+                "Build failed: invalid front matter in #{all_issues.map(&:file).uniq.size} file(s)."
         end
       else
-        Jekyll.logger.info "FrontMatterValidator:", "front matter ok \u2714"
+        Jekyll.logger.info "FrontMatterValidator:", "front matter OK \u2714"
       end
     end
   end
