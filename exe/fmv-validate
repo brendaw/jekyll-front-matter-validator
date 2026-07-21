@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+#
+# Uso:
+#   fmv-validate                # valida tudo no projeto
+#   fmv-validate --staged        # valida só arquivos staged no git
+#   fmv-validate caminho1 caminho2  # valida arquivo(s) específico(s)
+#
+require "jekyll-front_matter_validator"
+
+def project_root
+  root = `git rev-parse --show-toplevel 2>/dev/null`.strip
+  root.empty? ? Dir.pwd : root
+end
+
+def staged_files
+  `git diff --cached --name-only --diff-filter=ACM`.split("\n")
+end
+
+def all_content_files(root)
+  Dir.glob(File.join(root, "**", "*.{md,markdown,html}")).reject do |f|
+    f.include?("/_site/") || f.include?("/vendor/") || f.include?("/node_modules/")
+  end
+end
+
+root = project_root
+mode = ARGV.include?("--staged") ? :staged : :all
+explicit_files = ARGV.reject { |a| a.start_with?("--") }
+
+files =
+  if explicit_files.any?
+    explicit_files.map { |f| File.expand_path(f) }
+  elsif mode == :staged
+    staged_files.select { |f| f =~ /\.(md|markdown|html)\z/ }.map { |f| File.join(root, f) }
+  else
+    all_content_files(root)
+  end
+
+schema = Jekyll::FrontMatterValidator.load_schema(File.join(root, "_config.yml"))
+
+if schema.empty?
+  warn "Nenhum `front_matter_schema` encontrado em _config.yml — nada para validar."
+  exit 0
+end
+
+all_issues = []
+
+files.each do |path|
+  next unless File.exist?(path)
+  rel_path = path.sub("#{root}/", "")
+
+  fm, yaml_error = Jekyll::FrontMatterValidator.read_front_matter(path)
+
+  if yaml_error
+    all_issues << Jekyll::FrontMatterValidator::Issue.new(rel_path, "(yaml)", "YAML inválido: #{yaml_error}", :error)
+    next
+  end
+  next if fm.nil? # arquivo sem bloco de front matter, ignora
+
+  rules = Jekyll::FrontMatterValidator.rules_for(rel_path, schema)
+  next unless Jekyll::FrontMatterValidator.has_rules?(rules)
+
+  all_issues.concat(Jekyll::FrontMatterValidator.validate_all(fm, rules, file: rel_path, project_root: root))
+end
+
+if all_issues.empty?
+  puts "\u2714 Front matter v\u00e1lido em #{files.size} arquivo(s)."
+  exit 0
+else
+  puts "\u2718 #{all_issues.size} problema(s) de front matter encontrado(s):\n\n"
+  all_issues.each { |i| puts "  #{i}" }
+  puts
+  exit 1
+end

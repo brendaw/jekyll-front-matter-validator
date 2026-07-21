@@ -1,0 +1,50 @@
+# Cole isto no _config.yml do seu site (não substitua o arquivo inteiro).
+
+front_matter_schema:
+  # Se false, apenas avisa no log mas deixa o build continuar.
+  fail_build_on_error: true
+
+  # Regras aplicadas a QUALQUER arquivo que não caia em nenhuma
+  # "collections" abaixo.
+  defaults:
+    required: [title]
+    types:
+      title: string
+
+  collections:
+    posts:
+      path: _posts
+      required: [title, date, layout, slug, cover_image]
+      types:
+        title: string
+        date: date
+        tags: array
+        published: boolean
+        slug: slug          # valida que é minúsculo, sem acento/espaço
+      enum:
+        layout: [post, article]
+
+      # Para cada campo listado aqui, confere se existe um arquivo de
+      # asset correspondente ao valor informado no front matter.
+      assets:
+        # front matter: cover_image: "gatos-fofos"
+        # procura por assets/images/gatos-fofos.{jpg,jpeg,png,webp}
+        cover_image:
+          dir: assets/images
+          extensions: [jpg, jpeg, png, webp]
+
+        # front matter: slug: "Meu Post Legal"
+        # normaliza pra "meu-post-legal" antes de procurar
+        # em assets/posts/meu-post-legal/cover.*
+        slug:
+          pattern: "assets/posts/{value}/cover.*"
+          slugify: true
+
+    pages:
+      path: _pages
+      required: [title, layout, permalink]
+      types:
+        title: string
+        permalink: string
+      enum:
+        layout: [page, landing]
