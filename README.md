@@ -15,6 +15,49 @@ Gem that validates the front matter of your Jekyll posts/pages and warns
 Runs automatically on `jekyll build` and `jekyll serve`, and can also be
 used as a standalone CLI (useful for git `pre-commit` hooks).
 
+## Quick start
+
+Get up and running in 5 minutes:
+
+```bash
+# 1. Clone or copy the gem into your site's repo
+cp -r /path/to/jekyll-front-matter-validator \
+      /path/to/your-site/vendor/jekyll-front-matter-validator
+
+# 2. Add to your site's Gemfile
+cat >> Gemfile <<'EOF'
+
+group :jekyll_plugins do
+  gem "jekyll-front-matter-validator", path: "vendor/jekyll-front-matter-validator"
+end
+EOF
+
+# 3. Install
+bundle install
+
+# 4. Add validation rules to _config.yml (see examples/site-integration/_config.yml.example)
+
+# 5. Build — validation runs automatically
+bundle exec jekyll build
+```
+
+If anything is wrong with your front matter, the build will stop and show
+exactly what needs to be fixed. Set `fail_build_on_error: false` in
+`_config.yml` to warn without breaking the build.
+
+You can also validate files directly with the CLI:
+
+```bash
+bundle exec fmv-validate              # everything in the project
+bundle exec fmv-validate --staged     # only git-staged files
+bundle exec fmv-validate _posts/*.md  # specific files
+```
+
+> See [Installation](#1-installation-in-your-jekyll-site) for alternative
+> install methods (git, RubyGems) and
+> [Schema reference](#schema-reference-front_matter_schema-in-_configyml)
+> for the full configuration reference.
+
 ## Gem structure
 
 ```
