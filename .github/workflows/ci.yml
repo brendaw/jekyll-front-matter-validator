@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-gem:
+    name: Build gem
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Build gem package
+        run: gem build jekyll-front-matter-validator.gemspec
+
+  lint-ruby:
+    name: Lint Ruby syntax
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+
+      - name: Check Ruby syntax on all files
+        run: |
+          find lib exe -name '*.rb' -exec ruby -c {} +
+          ruby -c jekyll-front-matter-validator.gemspec
