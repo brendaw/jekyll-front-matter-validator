@@ -169,6 +169,11 @@ front_matter_schema:
         date: date
         tags: array
         slug: slug
+        cover:
+          type: hash
+          keys:
+            url: string
+            width: integer
       enum:
         layout: [post, article]
       assets:
@@ -186,6 +191,31 @@ front_matter_schema:
 
 `slug` validates against `/\A[a-z0-9]+(-[a-z0-9]+)*\z/` — i.e. lowercase
 letters, digits, and hyphens only, no accents or spaces.
+
+`hash` supports nested validation. You can declare sub-keys with the
+`keys` property (explicit style) or dot notation (compact style) — both
+can be mixed in the same config:
+
+```yaml
+types:
+  # Explicit style
+  cover:
+    type: hash
+    keys:
+      url: string
+      width: integer
+      author:
+        type: hash
+        keys:
+          name: string
+          user: string
+
+  # Dot notation (same result, more compact)
+  # cover.url: string
+  # cover.width: integer
+  # cover.author.name: string
+  # cover.author.user: string
+```
 
 ### `assets:` — checking for matching files
 
