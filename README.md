@@ -183,6 +183,9 @@ front_matter_schema:
         slug:
           pattern: "assets/posts/{value}/cover.*"
           slugify: true
+        cover.url:                    # dot notation for nested fields
+          dir: assets/images
+          extensions: [jpg, jpeg, png, webp]
 ```
 
 ### Supported types in `types:`
@@ -217,6 +220,9 @@ types:
   # cover.author.user: string
 ```
 
+Extra keys present in the hash but not declared in `keys` are accepted
+without errors — validation only checks the fields you explicitly list.
+
 ### `assets:` — checking for matching files
 
 For each field listed in `assets`, the validator builds an expected path
@@ -248,14 +254,31 @@ accents, downcases, replaces spaces with hyphens) before building the
 path — useful when the field used to derive the filename isn't itself a
 slug (e.g. using `title` to find the image).
 
+**Dot notation** is supported for nested front matter fields:
+
+```yaml
+assets:
+  cover.url:
+    dir: assets/images
+    extensions: [jpg, jpeg, png, webp]
+```
+`cover: { url: "cute-cats" }` → looks for `assets/images/cute-cats.{jpg,jpeg,png,webp}`.
+
+Dot notation works with both `dir` + `extensions` and `pattern` modes,
+and can be combined with `slugify: true`.
+
 ### How rules are selected per file
 
 For each file, the validator looks in `front_matter_schema.collections`
 for an entry whose `path` is a prefix of the file's path (e.g. `_posts`
 matches `_posts/2026-01-05-hello.md`). If none matches, it uses
 `front_matter_schema.defaults`. The `defaults` rules are always merged
-with the matched collection's rules ( required fields are summed,
+with the matched collection's rules (required fields are summed,
 types/enums/assets are combined with the defaults).
+
+For `types`, nested hash definitions are deep-merged — if both
+`defaults` and a collection define the same hash field with different
+sub-keys, all sub-keys are preserved (collection keys win on conflicts).
 
 ## Running the gem's own tests
 
