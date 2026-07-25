@@ -378,6 +378,14 @@ RSpec.describe Jekyll::FrontMatterValidator do
         expect(base.validate({ "score" => 42 }, rules, file: file)).to be_empty
       end
 
+      it "warns on unknown type" do
+        rules = { "types" => { "title" => "stiring" } }
+        issues = base.validate({ "title" => "Hello" }, rules, file: file)
+        expect(issues.size).to eq(1)
+        expect(issues.first.level).to eq(:warning)
+        expect(issues.first.message).to include("unknown type 'stiring'")
+      end
+
       context "nested hash types" do
         it "passes when nested hash has correct types" do
           rules = {

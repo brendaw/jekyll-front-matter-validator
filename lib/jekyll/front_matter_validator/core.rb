@@ -156,7 +156,10 @@ module Jekyll
       else
         type_str = type_def.to_s
         checker = TYPE_CHECKS[type_str]
-        return issues unless checker
+        unless checker
+          issues << Issue.new(file, field, "unknown type '#{type_str}'", :warning)
+          return issues
+        end
         return issues if checker.call(value)
 
         hint = type_str == "slug" ? " (expected a slug-like value, e.g. 'my-slug', no spaces/uppercase)" : ""
