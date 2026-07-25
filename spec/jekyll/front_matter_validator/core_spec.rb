@@ -225,6 +225,43 @@ RSpec.describe Jekyll::FrontMatterValidator do
       expect(result["required"]).to eq([])
       expect(result["types"]).to eq({})
     end
+
+    it "deep merges nested hash types between defaults and collection" do
+      defaults = {
+        "types" => {
+          "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+        }
+      }
+      collection = {
+        "types" => {
+          "cover" => { "type" => "hash", "keys" => { "width" => "integer" } }
+        }
+      }
+      schema = { "defaults" => defaults }
+
+      result = base.merge_defaults(collection, schema)
+      expect(result["types"]["cover"]["keys"]).to eq({
+        "url" => "string",
+        "width" => "integer"
+      })
+    end
+
+    it "collection nested types override defaults on conflict" do
+      defaults = {
+        "types" => {
+          "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+        }
+      }
+      collection = {
+        "types" => {
+          "cover" => { "type" => "hash", "keys" => { "url" => "integer" } }
+        }
+      }
+      schema = { "defaults" => defaults }
+
+      result = base.merge_defaults(collection, schema)
+      expect(result["types"]["cover"]["keys"]["url"]).to eq("integer")
+    end
   end
 
   describe ".validate" do

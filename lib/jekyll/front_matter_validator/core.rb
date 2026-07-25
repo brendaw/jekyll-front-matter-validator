@@ -97,7 +97,7 @@ module Jekyll
       defaults = schema["defaults"] || {}
       {
         "required" => (defaults["required"] || []) | (rules["required"] || []),
-        "types"    => (defaults["types"] || {}).merge(rules["types"] || {}),
+        "types"    => deep_merge_types(defaults["types"] || {}, rules["types"] || {}),
         "enum"     => (defaults["enum"] || {}).merge(rules["enum"] || {}),
         "assets"   => (defaults["assets"] || {}).merge(rules["assets"] || {})
       }
