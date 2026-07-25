@@ -33,6 +33,7 @@ For bug reports or feature requests, [open an Issue](https://github.com/brendaw/
 
    ```bash
    bundle exec rspec
+   bundle exec rubocop
    ```
 
 5. Optionally, test the gem locally with a Jekyll site:
@@ -69,12 +70,21 @@ The type determines how the commit appears in the CHANGELOG and influences the v
 
 ## Code style
 
-The repository includes an `.editorconfig` file. Most editors support it natively or via plugin — it enforces:
+The repository includes an `.editorconfig` file and RuboCop for linting. Most editors support both natively or via plugin.
+
+**Editorconfig** enforces:
 
 - UTF-8 encoding and LF line endings across all files
 - 2-space indentation for `.rb`, `.gemspec`, `.yml`
 - Tab indentation for `.sh` scripts
 - Final newline and no trailing whitespace
+
+**RuboCop** checks for style, naming, and best practices. Run before opening a PR:
+
+```bash
+bundle exec rubocop          # check only
+bundle exec rubocop -A       # auto-correct safe offenses
+```
 
 ## Project structure
 
@@ -97,8 +107,8 @@ Every pull request and push to `main` runs automated checks:
 | Check | What it does |
 |---|---|
 | **Gem build** | Builds the `.gem` package to verify the gemspec is valid |
-| **Syntax check** | Verifies all Ruby files parse correctly |
-| **Unit tests** | Runs RSpec tests against `spec/` |
+| **RuboCop** | Lints Ruby code for style, naming, and best practices |
+| **Unit tests** | Runs RSpec tests against `spec/` (Ruby 2.7, 3.2, 3.3) |
 
 All checks must pass before a PR can be merged.
 

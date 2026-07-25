@@ -1,19 +1,29 @@
+<p align="center">
+  <img src="https://badgen.net/github/license/brendaw/jekyll-front-matter-validator">
+  <img src="https://badgen.net/badge/status/active/green">
+  <img alt="Ruby" src="https://img.shields.io/badge/Ruby-2.7%2B-CC342D?logo=ruby&logoColor=white"/>
+  <img alt="Jekyll" src="https://img.shields.io/badge/Jekyll-3.5%2B%20%7C%20%3C5.0-red?logo=jekyll&logoColor=white"/>
+  <a href="https://github.com/brendaw/jekyll-front-matter-validator/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/brendaw/jekyll-front-matter-validator/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/brendaw/jekyll-front-matter-validator/issues"><img alt="Issues" src="https://badgen.net/github/open-issues/brendaw/jekyll-front-matter-validator"></a>
+</p>
+
 # jekyll-front-matter-validator
 
 Gem that validates the front matter of your Jekyll posts/pages and warns
-(or breaks the build) when something is wrong:
+(or breaks the build) when something is wrong.
 
-- required field missing
-- wrong type (`date` that isn't a date, `tags` that isn't an array...)
-- value outside an allowed list (`layout` is invalid, for example)
-- field that should be a **slug** (no accents, no spaces, no uppercase)
-  but isn't
-- field whose value should have a **matching asset** on disk
+## Features
+
+- Required field missing
+- Wrong type (`date` that isn't a date, `tags` that isn't an array...)
+- Value outside an allowed list (`layout` is invalid, for example)
+- Field that should be a **slug** (no accents, no spaces, no uppercase) but isn't
+- Field whose value should have a **matching asset** on disk
   (e.g. `cover_image: "cute-cats"` should exist at
   `assets/images/cute-cats.jpg`) but the file doesn't exist
-
-Runs automatically on `jekyll build` and `jekyll serve`, and can also be
-used as a standalone CLI (useful for git `pre-commit` hooks).
+- Nested hash validation with `keys` property and dot notation
+- Runs automatically on `jekyll build` and `jekyll serve`
+- Standalone CLI for git `pre-commit` hooks
 
 ## Quick start
 
@@ -289,3 +299,21 @@ bundle exec rspec
 
 Tests cover the core validation logic in `lib/jekyll/front_matter_validator/core.rb`
 (slugify, required/type/enum validation, asset checking, rule matching, YAML parsing).
+
+## Contributing
+
+Contributions are welcome — bug fixes, new features, documentation improvements, and translations.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow.
+
+The project uses GitHub Actions for CI (gem build, RuboCop linting, and unit tests across Ruby 2.7, 3.2, and 3.3).
+
+[Issues](https://github.com/brendaw/jekyll-front-matter-validator/issues) and
+[Pull Requests](https://github.com/brendaw/jekyll-front-matter-validator/pulls) are open for your contribution.
+
+## Contributors
+
+See the [AUTHORS](AUTHORS.md) file for the amazing contributors of this project.
+
+## License
+
+[MIT](LICENSE) — William Brendaw and the contributors — 2026
