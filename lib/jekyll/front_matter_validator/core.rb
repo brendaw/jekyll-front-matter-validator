@@ -166,6 +166,19 @@ module Jekyll
       issues
     end
 
+    # Resolves a dotted path against a hash, walking nested hashes.
+    # E.g. resolve_dotted_field({ "cover" => { "url" => "x" } }, "cover.url") => "x"
+    # Returns nil if any intermediate key is missing.
+    def resolve_dotted_field(fm, path)
+      parts = path.to_s.split(".")
+      current = fm
+      parts.each do |part|
+        return nil unless current.is_a?(Hash)
+        current = current[part] || current[part.to_sym]
+      end
+      current
+    end
+
     # Checks whether a matching asset file exists on disk for the value of
     # a given field. Two configuration styles in `assets:`:
     #
@@ -188,7 +201,7 @@ module Jekyll
       issues = []
 
       (rules["assets"] || {}).each do |field, cfg|
-        raw = fm[field.to_s]
+        raw = resolve_dotted_field(fm, field)
         next if raw.nil? || raw.to_s.strip.empty?
 
         value = cfg["slugify"] ? slugify(raw.to_s) : raw.to_s

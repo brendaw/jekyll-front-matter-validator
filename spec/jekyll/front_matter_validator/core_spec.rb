@@ -572,6 +572,38 @@ RSpec.describe Jekyll::FrontMatterValidator do
     end
   end
 
+  describe ".resolve_dotted_field" do
+    it "returns top-level value for simple key" do
+      fm = { "title" => "Hello" }
+      expect(base.resolve_dotted_field(fm, "title")).to eq("Hello")
+    end
+
+    it "resolves single-level dot notation" do
+      fm = { "cover" => { "url" => "image.jpg" } }
+      expect(base.resolve_dotted_field(fm, "cover.url")).to eq("image.jpg")
+    end
+
+    it "resolves multi-level dot notation" do
+      fm = { "cover" => { "author" => { "name" => "Markus" } } }
+      expect(base.resolve_dotted_field(fm, "cover.author.name")).to eq("Markus")
+    end
+
+    it "returns nil when intermediate key is missing" do
+      fm = { "cover" => { "url" => "image.jpg" } }
+      expect(base.resolve_dotted_field(fm, "cover.width")).to be_nil
+    end
+
+    it "returns nil when top-level key is missing" do
+      fm = { "title" => "Hello" }
+      expect(base.resolve_dotted_field(fm, "missing.field")).to be_nil
+    end
+
+    it "supports symbol keys in intermediate hashes" do
+      fm = { cover: { "url" => "image.jpg" } }
+      expect(base.resolve_dotted_field(fm, "cover.url")).to eq("image.jpg")
+    end
+  end
+
   describe ".validate_assets" do
     let(:file) { "_posts/2026-01-06-post.md" }
     let(:tmpdir) { Dir.mktmpdir }
@@ -653,6 +685,64 @@ RSpec.describe Jekyll::FrontMatterValidator do
 
         rules = { "assets" => { "slug" => { "pattern" => "assets/posts/{value}/cover.*", "slugify" => true } } }
         issues = base.validate_assets({ "slug" => "My Post" }, rules, file: file, project_root: tmpdir)
+        expect(issues).to be_empty
+      end
+    end
+
+    context "dot notation for nested fields" do
+      it "passes when nested field asset exists" do
+        FileUtils.mkdir_p(File.join(tmpdir, "assets/images"))
+        FileUtils.touch(File.join(tmpdir, "assets/images/image.jpg"))
+
+        rules = { "assets" => { "cover.url" => { "dir" => "assets/images", "extensions" => %w[jpg] } } }
+        fm = { "cover" => { "url" => "image" } }
+        issues = base.validate_assets(fm, rules, file: file, project_root: tmpdir)
+        expect(issues).to be_empty
+      end
+
+      it "reports missing asset for nested field" do
+        FileUtils.mkdir_p(File.join(tmpdir, "assets/images"))
+
+        rules = { "assets" => { "cover.url" => { "dir" => "assets/images", "extensions" => %w[jpg] } } }
+        fm = { "cover" => { "url" => "missing" } }
+        issues = base.validate_assets(fm, rules, file: file, project_root: tmpdir)
+        expect(issues.size).to eq(1)
+        expect(issues.first.field).to eq("cover.url")
+      end
+
+      it "skips when nested field is not present in front matter" do
+        rules = { "assets" => { "cover.url" => { "dir" => "assets/images", "extensions" => %w[jpg] } } }
+        issues = base.validate_assets({}, rules, file: file, project_root: tmpdir)
+        expect(issues).to be_empty
+      end
+
+      it "resolves deeply nested dot notation" do
+        FileUtils.mkdir_p(File.join(tmpdir, "assets/images"))
+        FileUtils.touch(File.join(tmpdir, "assets/images/hero.jpg"))
+
+        rules = { "assets" => { "post.cover.url" => { "dir" => "assets/images", "extensions" => %w[jpg] } } }
+        fm = { "post" => { "cover" => { "url" => "hero" } } }
+        issues = base.validate_assets(fm, rules, file: file, project_root: tmpdir)
+        expect(issues).to be_empty
+      end
+
+      it "slugifies nested field value when slugify is true" do
+        FileUtils.mkdir_p(File.join(tmpdir, "assets/images"))
+        FileUtils.touch(File.join(tmpdir, "assets/images/my-post.jpg"))
+
+        rules = { "assets" => { "cover.url" => { "dir" => "assets/images", "extensions" => %w[jpg], "slugify" => true } } }
+        fm = { "cover" => { "url" => "My Post" } }
+        issues = base.validate_assets(fm, rules, file: file, project_root: tmpdir)
+        expect(issues).to be_empty
+      end
+
+      it "works with pattern mode for nested fields" do
+        FileUtils.mkdir_p(File.join(tmpdir, "assets/posts/my-post"))
+        FileUtils.touch(File.join(tmpdir, "assets/posts/my-post/cover.jpg"))
+
+        rules = { "assets" => { "slug" => { "pattern" => "assets/posts/{value}/cover.*" } } }
+        fm = { "slug" => "my-post" }
+        issues = base.validate_assets(fm, rules, file: file, project_root: tmpdir)
         expect(issues).to be_empty
       end
     end
