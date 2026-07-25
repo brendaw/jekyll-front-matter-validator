@@ -17,21 +17,21 @@ RSpec.describe Jekyll::FrontMatterValidator do
       types = { "cover.url" => "string" }
       result = base.build_nested_type_tree(types)
       expect(result).to eq({
-        "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
-      })
+                             "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+                           })
     end
 
     it "converts multi-level dot notation" do
       types = { "cover.author.name" => "string" }
       result = base.build_nested_type_tree(types)
       expect(result).to eq({
-        "cover" => {
-          "type" => "hash",
-          "keys" => {
-            "author" => { "type" => "hash", "keys" => { "name" => "string" } }
-          }
-        }
-      })
+                             "cover" => {
+                               "type" => "hash",
+                               "keys" => {
+                                 "author" => { "type" => "hash", "keys" => { "name" => "string" } }
+                               }
+                             }
+                           })
     end
 
     it "merges multiple dot paths under same parent" do
@@ -241,9 +241,9 @@ RSpec.describe Jekyll::FrontMatterValidator do
 
       result = base.merge_defaults(collection, schema)
       expect(result["types"]["cover"]["keys"]).to eq({
-        "url" => "string",
-        "width" => "integer"
-      })
+                                                       "url" => "string",
+                                                       "width" => "integer"
+                                                     })
     end
 
     it "collection nested types override defaults on conflict" do
@@ -690,7 +690,8 @@ RSpec.describe Jekyll::FrontMatterValidator do
         FileUtils.mkdir_p(File.join(tmpdir, "assets/images"))
         FileUtils.touch(File.join(tmpdir, "assets/images/my-post.jpg"))
 
-        rules = { "assets" => { "cover_image" => { "dir" => "assets/images", "extensions" => %w[jpg], "slugify" => true } } }
+        rules = { "assets" => { "cover_image" => { "dir" => "assets/images", "extensions" => %w[jpg],
+                                                   "slugify" => true } } }
         issues = base.validate_assets({ "cover_image" => "My Post" }, rules, file: file, project_root: tmpdir)
         expect(issues).to be_empty
       end
@@ -775,7 +776,8 @@ RSpec.describe Jekyll::FrontMatterValidator do
         FileUtils.mkdir_p(File.join(tmpdir, "assets/images"))
         FileUtils.touch(File.join(tmpdir, "assets/images/my-post.jpg"))
 
-        rules = { "assets" => { "cover.url" => { "dir" => "assets/images", "extensions" => %w[jpg], "slugify" => true } } }
+        rules = { "assets" => { "cover.url" => { "dir" => "assets/images", "extensions" => %w[jpg],
+                                                 "slugify" => true } } }
         fm = { "cover" => { "url" => "My Post" } }
         issues = base.validate_assets(fm, rules, file: file, project_root: tmpdir)
         expect(issues).to be_empty

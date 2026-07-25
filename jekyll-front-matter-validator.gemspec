@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary     = "Validates Jekyll front matter: required fields, types, slugs, and matching assets."
   spec.description = "Jekyll plugin + CLI that validates front matter (required fields, types, enums, " \
-                      "slug format, and matching assets) on build, serve, and as a git pre-commit hook."
+                     "slug format, and matching assets) on build, serve, and as a git pre-commit hook."
   spec.homepage    = "https://github.com/brendaw/jekyll-front-matter-validator"
   spec.license     = "MIT"
 
@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop", "~> 1.50"
 
   spec.metadata["homepage_uri"] = spec.homepage
+  spec.metadata["rubygems_mfa_required"] = "true"
 end

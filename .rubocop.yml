@@ -54,3 +54,6 @@ Naming/PredicatePrefix:
 
 Naming/MethodParameterName:
   Enabled: false
+
+Gemspec/DevelopmentDependencies:
+  Enabled: false

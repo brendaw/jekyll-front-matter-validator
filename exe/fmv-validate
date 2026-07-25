@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
+
 #
 # Usage:
 #   fmv-validate                # validates all files in the project
@@ -31,7 +32,7 @@ files =
   if explicit_files.any?
     explicit_files.map { |f| File.expand_path(f) }
   elsif mode == :staged
-    staged_files.select { |f| f =~ /\.(md|markdown|html)\z/ }.map { |f| File.join(root, f) }
+    staged_files.grep(/\.(md|markdown|html)\z/).map { |f| File.join(root, f) }
   else
     all_content_files(root)
   end
@@ -47,6 +48,7 @@ all_issues = []
 
 files.each do |path|
   next unless File.exist?(path)
+
   rel_path = path.sub("#{root}/", "")
 
   fm, yaml_error = Jekyll::FrontMatterValidator.read_front_matter(path)

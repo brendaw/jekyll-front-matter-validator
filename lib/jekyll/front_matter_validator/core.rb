@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "yaml"
 require "date"
 
@@ -9,14 +10,14 @@ module Jekyll
     SLUG_REGEX = /\A[a-z0-9]+(-[a-z0-9]+)*\z/.freeze
 
     TYPE_CHECKS = {
-      "string"  => ->(v) { v.is_a?(String) },
+      "string" => ->(v) { v.is_a?(String) },
       "integer" => ->(v) { v.is_a?(Integer) },
-      "float"   => ->(v) { v.is_a?(Numeric) },
-      "boolean" => ->(v) { v == true || v == false },
-      "array"   => ->(v) { v.is_a?(Array) },
-      "hash"    => ->(v) { v.is_a?(Hash) },
-      "date"    => ->(v) { valid_date?(v) },
-      "slug"    => ->(v) { v.is_a?(String) && v.match?(SLUG_REGEX) }
+      "float" => ->(v) { v.is_a?(Numeric) },
+      "boolean" => ->(v) { [true, false].include?(v) },
+      "array" => ->(v) { v.is_a?(Array) },
+      "hash" => ->(v) { v.is_a?(Hash) },
+      "date" => ->(v) { valid_date?(v) },
+      "slug" => ->(v) { v.is_a?(String) && v.match?(SLUG_REGEX) }
     }.freeze
 
     Issue = Struct.new(:file, :field, :message, :level) do
@@ -46,11 +47,13 @@ module Jekyll
       tree = {}
       (types || {}).each do |key, type_def|
         next if key.include?(".")
+
         tree[key] = type_def
       end
 
       (types || {}).each do |key, type_def|
         next unless key.include?(".")
+
         parts = key.split(".")
         current = tree
 
@@ -99,6 +102,7 @@ module Jekyll
       (schema["collections"] || {}).each_value do |rules|
         dir = rules["path"]
         next unless dir
+
         dir = dir.to_s.sub(%r{\A/}, "").sub(%r{/\z}, "")
         return merge_defaults(rules, schema) if relative_path.start_with?("#{dir}/")
       end
@@ -109,9 +113,9 @@ module Jekyll
       defaults = schema["defaults"] || {}
       {
         "required" => (defaults["required"] || []) | (rules["required"] || []),
-        "types"    => deep_merge_types(defaults["types"] || {}, rules["types"] || {}),
-        "enum"     => (defaults["enum"] || {}).merge(rules["enum"] || {}),
-        "assets"   => (defaults["assets"] || {}).merge(rules["assets"] || {})
+        "types" => deep_merge_types(defaults["types"] || {}, rules["types"] || {}),
+        "enum" => (defaults["enum"] || {}).merge(rules["enum"] || {}),
+        "assets" => (defaults["assets"] || {}).merge(rules["assets"] || {})
       }
     end
 
@@ -129,12 +133,14 @@ module Jekyll
 
       nested_types.each do |field, type_def|
         next unless fm.key?(field.to_s)
+
         value = fm[field.to_s]
         issues.concat(validate_type(field, value, type_def, file, nested_types))
       end
 
       (rules["enum"] || {}).each do |field, allowed|
         next unless fm.key?(field.to_s)
+
         value = fm[field.to_s]
         next if Array(allowed).include?(value)
 
@@ -189,6 +195,7 @@ module Jekyll
       current = fm
       parts.each do |part|
         return nil unless current.is_a?(Hash)
+
         current = current[part] || current[part.to_sym]
       end
       current
@@ -265,6 +272,7 @@ module Jekyll
 
     def load_schema(config_path)
       return {} unless File.exist?(config_path)
+
       config = YAML.safe_load(File.read(config_path)) || {}
       config["front_matter_schema"] || {}
     end
