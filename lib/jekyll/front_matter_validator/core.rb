@@ -27,6 +27,48 @@ module Jekyll
 
     module_function
 
+    # Builds a nested type tree from dot-notation keys.
+    # E.g. { "cover.author.name" => "string" } becomes
+    #   { "cover" => { "type" => "hash", "keys" => { "author" => { "type" => "hash", "keys" => { "name" => "string" } } } } }
+    def build_nested_type_tree(types)
+      tree = {}
+      (types || {}).each do |key, type_def|
+        next if key.include?(".")
+        tree[key] = type_def
+      end
+
+      (types || {}).each do |key, type_def|
+        next unless key.include?(".")
+        parts = key.split(".")
+        current = tree
+
+        parts[0...-1].each do |part|
+          current[part] ||= { "type" => "hash", "keys" => {} }
+          current[part]["keys"] ||= {}
+          current = current[part]["keys"]
+        end
+
+        current[parts.last] = type_def
+      end
+
+      tree
+    end
+
+    # Deep merges two type definitions. Explicit (second arg) wins on conflicts.
+    def deep_merge_types(base, override)
+      result = base.dup
+      override.each do |key, over_val|
+        base_val = result[key]
+        if base_val.is_a?(Hash) && base_val["type"] == "hash" && over_val.is_a?(Hash) && over_val["type"] == "hash"
+          merged_keys = deep_merge_types(base_val["keys"] || {}, over_val["keys"] || {})
+          result[key] = { "type" => "hash", "keys" => merged_keys }
+        else
+          result[key] = over_val
+        end
+      end
+      result
+    end
+
     # Converts any string into a slug: strips accents, downcases,
     # replaces non-[a-z0-9] with hyphens, and trims leading/trailing hyphens.
     # E.g. "Coffee with Sugar!" -> "coffee-with-sugar"
@@ -61,7 +103,7 @@ module Jekyll
       }
     end
 
-    # Validates required fields, types (including slug), and enums.
+    # Validates required fields, types (including slug, nested hashes), and enums.
     def validate(fm, rules, file:)
       issues = []
       fm ||= {}
@@ -71,15 +113,12 @@ module Jekyll
         issues << Issue.new(file, field, "required field missing", :error) if value.nil? || value == ""
       end
 
-      (rules["types"] || {}).each do |field, type|
+      nested_types = build_nested_type_tree(rules["types"])
+
+      nested_types.each do |field, type_def|
         next unless fm.key?(field.to_s)
         value = fm[field.to_s]
-        checker = TYPE_CHECKS[type.to_s]
-        next unless checker
-        next if checker.call(value)
-
-        hint = type.to_s == "slug" ? " (expected a slug-like value, e.g. 'my-slug', no spaces/uppercase)" : ""
-        issues << Issue.new(file, field, "expected type '#{type}'#{hint}, got #{value.inspect}", :error)
+        issues.concat(validate_type(field, value, type_def, file, nested_types))
       end
 
       (rules["enum"] || {}).each do |field, allowed|
@@ -88,6 +127,40 @@ module Jekyll
         next if Array(allowed).include?(value)
 
         issues << Issue.new(file, field, "value #{value.inspect} not in allowed list #{allowed}", :error)
+      end
+
+      issues
+    end
+
+    # Validates a single field value against its type definition.
+    # Recursively validates nested hash keys.
+    def validate_type(field, value, type_def, file, nested_types)
+      issues = []
+
+      if type_def.is_a?(Hash) && type_def["type"] == "hash"
+        checker = TYPE_CHECKS["hash"]
+        unless checker.call(value)
+          issues << Issue.new(file, field, "expected type 'hash', got #{value.inspect}", :error)
+          return issues
+        end
+
+        if type_def["keys"]
+          type_def["keys"].each do |key, sub_type|
+            sub_field = "#{field}.#{key}"
+            if value.key?(key.to_s) || value.key?(key.to_sym)
+              sub_value = value[key.to_s] || value[key.to_sym]
+              issues.concat(validate_type(sub_field, sub_value, sub_type, file, nested_types))
+            end
+          end
+        end
+      else
+        type_str = type_def.to_s
+        checker = TYPE_CHECKS[type_str]
+        return issues unless checker
+        return issues if checker.call(value)
+
+        hint = type_str == "slug" ? " (expected a slug-like value, e.g. 'my-slug', no spaces/uppercase)" : ""
+        issues << Issue.new(file, field, "expected type '#{type_str}'#{hint}, got #{value.inspect}", :error)
       end
 
       issues

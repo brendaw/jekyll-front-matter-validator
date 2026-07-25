@@ -7,6 +7,95 @@ require "fileutils"
 RSpec.describe Jekyll::FrontMatterValidator do
   let(:base) { Jekyll::FrontMatterValidator }
 
+  describe ".build_nested_type_tree" do
+    it "returns non-dot keys as-is" do
+      types = { "title" => "string", "date" => "date" }
+      expect(base.build_nested_type_tree(types)).to eq(types)
+    end
+
+    it "converts single-level dot notation" do
+      types = { "cover.url" => "string" }
+      result = base.build_nested_type_tree(types)
+      expect(result).to eq({
+        "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+      })
+    end
+
+    it "converts multi-level dot notation" do
+      types = { "cover.author.name" => "string" }
+      result = base.build_nested_type_tree(types)
+      expect(result).to eq({
+        "cover" => {
+          "type" => "hash",
+          "keys" => {
+            "author" => { "type" => "hash", "keys" => { "name" => "string" } }
+          }
+        }
+      })
+    end
+
+    it "merges multiple dot paths under same parent" do
+      types = { "cover.url" => "string", "cover.author.name" => "string" }
+      result = base.build_nested_type_tree(types)
+      expect(result["cover"]["keys"]["url"]).to eq("string")
+      expect(result["cover"]["keys"]["author"]["keys"]["name"]).to eq("string")
+    end
+
+    it "handles empty types" do
+      expect(base.build_nested_type_tree({})).to eq({})
+    end
+
+    it "handles nil types" do
+      expect(base.build_nested_type_tree(nil)).to eq({})
+    end
+
+    it "preserves explicit nested structures" do
+      types = {
+        "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+      }
+      result = base.build_nested_type_tree(types)
+      expect(result).to eq(types)
+    end
+  end
+
+  describe ".deep_merge_types" do
+    it "merges flat types" do
+      base_t = { "title" => "string" }
+      over_t = { "date" => "date" }
+      result = base.deep_merge_types(base_t, over_t)
+      expect(result).to eq({ "title" => "string", "date" => "date" })
+    end
+
+    it "override wins on conflict" do
+      base_t = { "title" => "string" }
+      over_t = { "title" => "integer" }
+      result = base.deep_merge_types(base_t, over_t)
+      expect(result["title"]).to eq("integer")
+    end
+
+    it "deep merges nested hash types" do
+      base_t = {
+        "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+      }
+      over_t = {
+        "cover" => { "type" => "hash", "keys" => { "width" => "integer" } }
+      }
+      result = base.deep_merge_types(base_t, over_t)
+      expect(result["cover"]["keys"]).to eq({ "url" => "string", "width" => "integer" })
+    end
+
+    it "override nested keys win on conflict" do
+      base_t = {
+        "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+      }
+      over_t = {
+        "cover" => { "type" => "hash", "keys" => { "url" => "integer" } }
+      }
+      result = base.deep_merge_types(base_t, over_t)
+      expect(result["cover"]["keys"]["url"]).to eq("integer")
+    end
+  end
+
   describe ".slugify" do
     it "downcases and replaces non-alphanumeric with hyphens" do
       expect(base.slugify("Hello World")).to eq("hello-world")
@@ -250,6 +339,157 @@ RSpec.describe Jekyll::FrontMatterValidator do
         rules = { "types" => { "score" => "float" } }
         expect(base.validate({ "score" => 3.14 }, rules, file: file)).to be_empty
         expect(base.validate({ "score" => 42 }, rules, file: file)).to be_empty
+      end
+
+      context "nested hash types" do
+        it "passes when nested hash has correct types" do
+          rules = {
+            "types" => {
+              "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+            }
+          }
+          fm = { "cover" => { "url" => "image.jpg" } }
+          expect(base.validate(fm, rules, file: file)).to be_empty
+        end
+
+        it "reports wrong type in nested field" do
+          rules = {
+            "types" => {
+              "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+            }
+          }
+          fm = { "cover" => { "url" => 123 } }
+          issues = base.validate(fm, rules, file: file)
+          expect(issues.size).to eq(1)
+          expect(issues.first.field).to eq("cover.url")
+          expect(issues.first.message).to include("expected type 'string'")
+        end
+
+        it "validates deeply nested hashes (3+ levels)" do
+          rules = {
+            "types" => {
+              "cover" => {
+                "type" => "hash",
+                "keys" => {
+                  "author" => {
+                    "type" => "hash",
+                    "keys" => {
+                      "name" => "string",
+                      "user" => "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+          fm = { "cover" => { "author" => { "name" => "Markus", "user" => "markusw" } } }
+          expect(base.validate(fm, rules, file: file)).to be_empty
+        end
+
+        it "reports wrong type at deep nested level" do
+          rules = {
+            "types" => {
+              "cover" => {
+                "type" => "hash",
+                "keys" => {
+                  "author" => {
+                    "type" => "hash",
+                    "keys" => {
+                      "name" => "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+          fm = { "cover" => { "author" => { "name" => 42 } } }
+          issues = base.validate(fm, rules, file: file)
+          expect(issues.size).to eq(1)
+          expect(issues.first.field).to eq("cover.author.name")
+        end
+
+        it "reports when parent hash is wrong type" do
+          rules = {
+            "types" => {
+              "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+            }
+          }
+          fm = { "cover" => "not-a-hash" }
+          issues = base.validate(fm, rules, file: file)
+          expect(issues.size).to eq(1)
+          expect(issues.first.field).to eq("cover")
+          expect(issues.first.message).to include("expected type 'hash'")
+        end
+
+        it "skips nested validation when parent key not in front matter" do
+          rules = {
+            "types" => {
+              "cover" => { "type" => "hash", "keys" => { "url" => "string" } }
+            }
+          }
+          fm = {}
+          expect(base.validate(fm, rules, file: file)).to be_empty
+        end
+
+        it "handles multiple nested fields with mixed types" do
+          rules = {
+            "types" => {
+              "cover" => {
+                "type" => "hash",
+                "keys" => {
+                  "url" => "string",
+                  "width" => "integer",
+                  "author" => {
+                    "type" => "hash",
+                    "keys" => {
+                      "name" => "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+          fm = { "cover" => { "url" => "img.jpg", "width" => "bad", "author" => { "name" => 42 } } }
+          issues = base.validate(fm, rules, file: file)
+          expect(issues.size).to eq(2)
+          fields = issues.map(&:field)
+          expect(fields).to contain_exactly("cover.width", "cover.author.name")
+        end
+
+        it "supports dot notation for nested types" do
+          rules = {
+            "types" => {
+              "cover.url" => "string",
+              "cover.author.name" => "string",
+              "cover.author.user" => "string"
+            }
+          }
+          fm = { "cover" => { "url" => "img.jpg", "author" => { "name" => "Markus", "user" => "markusw" } } }
+          expect(base.validate(fm, rules, file: file)).to be_empty
+        end
+
+        it "reports errors with dot notation paths" do
+          rules = {
+            "types" => {
+              "cover.author.name" => "string"
+            }
+          }
+          fm = { "cover" => { "author" => { "name" => 42 } } }
+          issues = base.validate(fm, rules, file: file)
+          expect(issues.size).to eq(1)
+          expect(issues.first.field).to eq("cover.author.name")
+        end
+
+        it "merges dot notation with explicit nested types" do
+          rules = {
+            "types" => {
+              "cover" => { "type" => "hash", "keys" => { "url" => "string" } },
+              "cover.author.name" => "string"
+            }
+          }
+          fm = { "cover" => { "url" => "img.jpg", "author" => { "name" => "Markus" } } }
+          expect(base.validate(fm, rules, file: file)).to be_empty
+        end
       end
     end
 

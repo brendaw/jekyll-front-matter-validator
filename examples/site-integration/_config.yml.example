@@ -21,6 +21,28 @@ front_matter_schema:
         tags: array
         published: boolean
         slug: slug          # validates lowercase, no accents/spaces
+
+        # Nested hash types — validates internal structure recursively.
+        # Style A — explicit nested structure:
+        cover:
+          type: hash
+          keys:
+            url: string
+            width: integer
+            author:
+              type: hash
+              keys:
+                name: string
+                user: string
+
+        # Style B — dot notation (same result, more compact):
+        # cover.url: string
+        # cover.width: integer
+        # cover.author.name: string
+        # cover.author.user: string
+
+        # Both styles can be mixed in the same config.
+
       enum:
         layout: [post, article]
 
