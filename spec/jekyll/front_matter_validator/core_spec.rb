@@ -334,6 +334,43 @@ RSpec.describe Jekyll::FrontMatterValidator do
         expect(issues.size).to eq(1)
       end
 
+      it "rejects date with invalid month" do
+        rules = { "types" => { "date" => "date" } }
+        issues = base.validate({ "date" => "2026-13-01" }, rules, file: file)
+        expect(issues.size).to eq(1)
+        expect(issues.first.message).to include("expected type 'date'")
+      end
+
+      it "rejects date with invalid day" do
+        rules = { "types" => { "date" => "date" } }
+        issues = base.validate({ "date" => "2026-01-32" }, rules, file: file)
+        expect(issues.size).to eq(1)
+      end
+
+      it "rejects February 30" do
+        rules = { "types" => { "date" => "date" } }
+        issues = base.validate({ "date" => "2026-02-30" }, rules, file: file)
+        expect(issues.size).to eq(1)
+      end
+
+      it "rejects non-date strings that match pattern" do
+        rules = { "types" => { "date" => "date" } }
+        issues = base.validate({ "date" => "tuesday" }, rules, file: file)
+        expect(issues.size).to eq(1)
+      end
+
+      it "accepts valid leap year date" do
+        rules = { "types" => { "date" => "date" } }
+        issues = base.validate({ "date" => "2024-02-29" }, rules, file: file)
+        expect(issues).to be_empty
+      end
+
+      it "rejects non-leap year February 29" do
+        rules = { "types" => { "date" => "date" } }
+        issues = base.validate({ "date" => "2026-02-29" }, rules, file: file)
+        expect(issues.size).to eq(1)
+      end
+
       it "validates slug type" do
         rules = { "types" => { "slug" => "slug" } }
         issues = base.validate({ "slug" => "my-cool-post" }, rules, file: file)

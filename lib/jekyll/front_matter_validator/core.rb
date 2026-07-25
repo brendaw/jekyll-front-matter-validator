@@ -15,7 +15,7 @@ module Jekyll
       "boolean" => ->(v) { v == true || v == false },
       "array"   => ->(v) { v.is_a?(Array) },
       "hash"    => ->(v) { v.is_a?(Hash) },
-      "date"    => ->(v) { v.is_a?(Date) || v.is_a?(Time) || (v.is_a?(String) && v =~ /\A\d{4}-\d{2}-\d{2}/) },
+      "date"    => ->(v) { valid_date?(v) },
       "slug"    => ->(v) { v.is_a?(String) && v.match?(SLUG_REGEX) }
     }.freeze
 
@@ -26,6 +26,17 @@ module Jekyll
     end
 
     module_function
+
+    def valid_date?(value)
+      return true if value.is_a?(Date) || value.is_a?(Time)
+      return false unless value.is_a?(String)
+      return false unless value =~ /\A\d{4}-\d{2}-\d{2}/
+
+      Date.parse(value)
+      true
+    rescue Date::Error, ArgumentError
+      false
+    end
 
     # Builds a nested type tree from dot-notation keys.
     # E.g. { "cover.author.name" => "string" } becomes
