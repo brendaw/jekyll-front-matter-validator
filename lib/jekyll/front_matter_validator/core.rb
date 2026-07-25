@@ -34,13 +34,14 @@ module Jekyll
 
       Date.parse(value)
       true
-    rescue Date::Error, ArgumentError
+    rescue Date::Error
       false
     end
 
     # Builds a nested type tree from dot-notation keys.
     # E.g. { "cover.author.name" => "string" } becomes
-    #   { "cover" => { "type" => "hash", "keys" => { "author" => { "type" => "hash", "keys" => { "name" => "string" } } } } }
+    #   { "cover" => { "type" => "hash", "keys" =>
+    #     { "author" => { "type" => "hash", "keys" => { "name" => "string" } } } } }
     def build_nested_type_tree(types)
       tree = {}
       (types || {}).each do |key, type_def|

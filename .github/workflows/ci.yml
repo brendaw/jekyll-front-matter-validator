@@ -22,7 +22,7 @@ jobs:
         run: gem build jekyll-front-matter-validator.gemspec
 
   lint-ruby:
-    name: Lint Ruby syntax
+    name: Lint Ruby
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -30,11 +30,10 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.2"
+          bundler-cache: true
 
-      - name: Check Ruby syntax on all files
-        run: |
-          find lib exe -name '*.rb' -exec ruby -c {} +
-          ruby -c jekyll-front-matter-validator.gemspec
+      - name: RuboCop
+        run: bundle exec rubocop
 
   test:
     name: Unit tests (Ruby ${{ matrix.ruby-version }})

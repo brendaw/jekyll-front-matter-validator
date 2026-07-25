@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "jekyll", ">= 3.5", "< 5.0"
 
   spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "rubocop", "~> 1.50"
 
   spec.metadata["homepage_uri"] = spec.homepage
 end
