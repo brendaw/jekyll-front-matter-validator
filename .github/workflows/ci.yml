@@ -37,14 +37,18 @@ jobs:
           ruby -c jekyll-front-matter-validator.gemspec
 
   test:
-    name: Unit tests
+    name: Unit tests (Ruby ${{ matrix.ruby-version }})
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby-version: ["2.7", "3.2", "3.3"]
     steps:
       - uses: actions/checkout@v4
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.2"
+          ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true
 
       - name: Run RSpec
