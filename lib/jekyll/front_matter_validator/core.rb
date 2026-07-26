@@ -17,7 +17,11 @@ module Jekyll
       "array" => ->(v) { v.is_a?(Array) },
       "hash" => ->(v) { v.is_a?(Hash) },
       "date" => ->(v) { valid_date?(v) },
-      "slug" => ->(v) { v.is_a?(String) && v.match?(SLUG_REGEX) }
+      "slug" => ->(v) { v.is_a?(String) && v.match?(SLUG_REGEX) },
+      "slug_file" => lambda { |v|
+        v.is_a?(String) && v.match?(/\A(.+)\.[a-z]+\z/) &&
+          Regexp.last_match(1).match?(SLUG_REGEX)
+      }
     }.freeze
 
     Issue = Struct.new(:file, :field, :message, :level) do
@@ -180,7 +184,13 @@ module Jekyll
         end
         return issues if checker.call(value)
 
-        hint = type_str == "slug" ? " (expected a slug-like value, e.g. 'my-slug', no spaces/uppercase)" : ""
+        hint = case type_str
+               when "slug"
+                 " (expected a slug-like value, e.g. 'my-slug', no spaces/uppercase)"
+               when "slug_file"
+                 " (expected a filename with slug name, e.g. 'my-post.jpg')"
+               else ""
+               end
         issues << Issue.new(file, field, "expected type '#{type_str}'#{hint}, got #{value.inspect}", :error)
       end
 
