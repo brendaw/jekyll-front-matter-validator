@@ -41,7 +41,11 @@ module Jekyll
         Jekyll.logger.error "FrontMatterValidator:", "#{all_issues.size} issue(s) found in front matter"
         all_issues.each { |i| Jekyll.logger.error "  ", i.to_s }
 
-        abort "Build failed: invalid front matter in #{all_issues.map(&:file).uniq.size} file(s)." if fail_on_error
+        if fail_on_error
+          warn "Build failed: invalid front matter in #{all_issues.map(&:file).uniq.size} file(s)."
+          $stderr.flush
+          exit!(1)
+        end
       else
         Jekyll.logger.info "FrontMatterValidator:", "front matter OK \u2714"
       end
