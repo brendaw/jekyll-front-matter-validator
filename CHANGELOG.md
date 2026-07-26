@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0](https://github.com/brendaw/jekyll-front-matter-validator/releases/tag/v0.3.0) - 2026-07-26
+
+### Added
+
+- `slug_file` type for filename validation (validates name before extension as slug, accepts letters, digits, hyphens, and underscores)
+- ANSI color output for validation errors (red) and success (green) in CLI and Jekyll hook
+
+### Fixed
+
+- Read from git index (`git show :path`) when validating staged files instead of disk, preventing incorrect validation with unstaged changes
+- Replace `FatalException` with `exit!` to suppress Jekyll stack trace on validation failure
+- Duplicate validation of posts collection in Jekyll hook (posts were added twice via `site.posts.docs` and `site.collections`)
+
 ## [0.2.0](https://github.com/brendaw/jekyll-front-matter-validator/releases/tag/v0.2.0) - 2026-07-25
 
 ### Added

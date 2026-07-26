@@ -21,6 +21,7 @@ front_matter_schema:
         tags: array
         published: boolean
         slug: slug          # validates lowercase, no accents/spaces
+        slug_file: slug_file  # validates filename without extension as slug
 
         # Nested hash types — validates internal structure recursively.
         # Style A — explicit nested structure:

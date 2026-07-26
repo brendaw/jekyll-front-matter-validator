@@ -18,6 +18,7 @@ Gem that validates the front matter of your Jekyll posts/pages and warns
 - Wrong type (`date` that isn't a date, `tags` that isn't an array...)
 - Value outside an allowed list (`layout` is invalid, for example)
 - Field that should be a **slug** (no accents, no spaces, no uppercase) but isn't
+- Field that should be a **slug_file** (filename with slug-like name) but isn't
 - Field whose value should have a **matching asset** on disk
   (e.g. `cover_image: "cute-cats"` should exist at
   `assets/images/cute-cats.jpg`) but the file doesn't exist
@@ -122,7 +123,7 @@ bundle install
 
 ```ruby
 group :jekyll_plugins do
-  gem "jekyll-front-matter-validator", "~> 0.2"
+  gem "jekyll-front-matter-validator", "~> 0.3"
 end
 ```
 
@@ -212,10 +213,15 @@ front_matter_schema:
 
 ### Supported types in `types:`
 
-`string`, `integer`, `float`, `boolean`, `array`, `hash`, `date`, `slug`.
+`string`, `integer`, `float`, `boolean`, `array`, `hash`, `date`, `slug`, `slug_file`.
 
 `slug` validates against `/\A[a-z0-9]+(-[a-z0-9]+)*\z/` — i.e. lowercase
 letters, digits, and hyphens only, no accents or spaces.
+
+`slug_file` validates the filename part (before extension) as a slug.
+Accepts uppercase letters and underscores in addition to lowercase
+letters, digits, and hyphens. E.g. `my-post.jpg`, `My_Cool_Post.png`
+are valid; `My Post.jpg` and `cover!.jpg` are not.
 
 `hash` supports nested validation. You can declare sub-keys with the
 `keys` property (explicit style) or dot notation (compact style) — both
