@@ -254,11 +254,18 @@ module Jekyll
       validate(fm, rules, file: file) + validate_assets(fm, rules, file: file, project_root: project_root)
     end
 
-    # Reads the raw YAML front matter block from a file on disk.
+    # Reads the raw YAML front matter block from a file.
+    # When staged: true, reads from the git index (staged version) instead of disk.
     # Returns [hash_or_nil, error_message_or_nil].
     # hash == nil and error == nil means "no front matter".
-    def read_front_matter(path)
-      content = File.read(path, encoding: "utf-8")
+    def read_front_matter(path, staged: false)
+      content = if staged
+                  root = `git rev-parse --show-toplevel 2>/dev/null`.strip
+                  rel = path.sub("#{root}/", "")
+                  `git show ":#{rel}" 2>/dev/null`
+                else
+                  File.read(path, encoding: "utf-8")
+                end
       match = content.match(/\A---\s*\n(.*?\n?)^---\s*$\n?/m)
       return [nil, nil] unless match
 

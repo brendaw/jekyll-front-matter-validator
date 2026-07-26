@@ -51,7 +51,7 @@ files.each do |path|
 
   rel_path = path.sub("#{root}/", "")
 
-  fm, yaml_error = Jekyll::FrontMatterValidator.read_front_matter(path)
+  fm, yaml_error = Jekyll::FrontMatterValidator.read_front_matter(path, staged: mode == :staged)
 
   if yaml_error
     all_issues << Jekyll::FrontMatterValidator::Issue.new(rel_path, "(yaml)", "Invalid YAML: #{yaml_error}", :error)
