@@ -19,8 +19,8 @@ module Jekyll
       "date" => ->(v) { valid_date?(v) },
       "slug" => ->(v) { v.is_a?(String) && v.match?(SLUG_REGEX) },
       "slug_file" => lambda { |v|
-        v.is_a?(String) && v.match?(/\A(.+)\.[a-z]+\z/) &&
-          Regexp.last_match(1).match?(SLUG_REGEX)
+        v.is_a?(String) && v.match?(/\A(.+)\.[a-z]+\z/i) &&
+          (Regexp.last_match(1)&.match?(SLUG_REGEX) || false)
       }
     }.freeze
 
