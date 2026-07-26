@@ -5,7 +5,11 @@ module Jekyll
     def self.documents_for(site)
       docs = site.pages.dup
       docs += site.posts.docs
-      site.collections.each_value { |c| docs += c.docs }
+      site.collections.each do |key, collection|
+        next if key == "posts"
+
+        docs += collection.docs
+      end
       docs
     end
 
