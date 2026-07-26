@@ -9,6 +9,10 @@ module Jekyll
     # separated by hyphens. E.g. "my-cool-post" passes, "My Post!" doesn't.
     SLUG_REGEX = /\A[a-z0-9]+(-[a-z0-9]+)*\z/.freeze
 
+    # Slug file regex: like SLUG but also accepts uppercase and underscores.
+    # Used for filename validation where "my_post.jpg" or "MyPost.jpg" are valid.
+    SLUG_FILE_REGEX = /\A[a-z0-9]+([-_][a-z0-9]+)*\z/i.freeze
+
     TYPE_CHECKS = {
       "string" => ->(v) { v.is_a?(String) },
       "integer" => ->(v) { v.is_a?(Integer) },
@@ -20,7 +24,7 @@ module Jekyll
       "slug" => ->(v) { v.is_a?(String) && v.match?(SLUG_REGEX) },
       "slug_file" => lambda { |v|
         v.is_a?(String) && (m = v.match(/\A(.+)\.[a-z]+\z/i)) &&
-          m[1].match?(SLUG_REGEX)
+          m[1].match?(SLUG_FILE_REGEX)
       }
     }.freeze
 
@@ -188,7 +192,8 @@ module Jekyll
                when "slug"
                  " (expected a slug-like value, e.g. 'my-slug', no spaces/uppercase)"
                when "slug_file"
-                 " (expected a filename with slug name, e.g. 'my-post.jpg')"
+                 " (expected a filename with slug-like name, e.g. 'my-post.jpg', " \
+                 "allowed: letters, digits, hyphens, underscores)"
                else ""
                end
         issues << Issue.new(file, field, "expected type '#{type_str}'#{hint}, got #{value.inspect}", :error)
