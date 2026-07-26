@@ -5,11 +5,11 @@ source "https://rubygems.org"
 gem "jekyll", "~> 4.3"
 
 group :jekyll_plugins do
-  # Option A — while not published on RubyGems, point to a local copy:
-  gem "jekyll-front-matter-validator", path: "vendor/jekyll-front-matter-validator"
+  # Option A — from GitHub (recommended):
+  gem "jekyll-front-matter-validator", git: "https://github.com/brendaw/jekyll-front-matter-validator"
 
-  # Option B — directly from a git repository:
-  # gem "jekyll-front-matter-validator", git: "https://github.com/your-user/jekyll-front-matter-validator"
+  # Option B — vendored (local copy):
+  # gem "jekyll-front-matter-validator", path: "vendor/jekyll-front-matter-validator"
 
   # Option C — after publishing to RubyGems:
   # gem "jekyll-front-matter-validator", "~> 0.2"

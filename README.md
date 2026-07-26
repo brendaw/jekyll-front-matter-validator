@@ -30,24 +30,20 @@ Gem that validates the front matter of your Jekyll posts/pages and warns
 Get up and running in 5 minutes:
 
 ```bash
-# 1. Clone or copy the gem into your site's repo
-cp -r /path/to/jekyll-front-matter-validator \
-      /path/to/your-site/vendor/jekyll-front-matter-validator
-
-# 2. Add to your site's Gemfile
+# 1. Add to your site's Gemfile
 cat >> Gemfile <<'EOF'
 
 group :jekyll_plugins do
-  gem "jekyll-front-matter-validator", path: "vendor/jekyll-front-matter-validator"
+  gem "jekyll-front-matter-validator", git: "https://github.com/brendaw/jekyll-front-matter-validator"
 end
 EOF
 
-# 3. Install
+# 2. Install
 bundle install
 
-# 4. Add validation rules to _config.yml (see examples/site-integration/_config.yml.example)
+# 3. Add validation rules to _config.yml (see examples/site-integration/_config.yml.example)
 
-# 5. Build — validation runs automatically
+# 4. Build — validation runs automatically
 bundle exec jekyll build
 ```
 
@@ -88,14 +84,29 @@ examples/site-integration/   # files to copy into YOUR SITE's repo
 
 ## 1. Installation in your Jekyll site
 
-Not yet published on RubyGems, the simplest approach is to vendor the gem
-inside the site repo:
+### Option A — from GitHub (recommended)
+
+In the site's `Gemfile` (see `examples/site-integration/Gemfile.example`):
+
+```ruby
+group :jekyll_plugins do
+  gem "jekyll-front-matter-validator", git: "https://github.com/brendaw/jekyll-front-matter-validator"
+end
+```
+
+```bash
+bundle install
+```
+
+### Option B — vendored (local copy)
+
+Clone or copy the gem into the site repo:
 
 ```bash
 cp -r jekyll-front-matter-validator vendor/jekyll-front-matter-validator
 ```
 
-In the site's `Gemfile` (see `examples/site-integration/Gemfile.example`):
+In the site's `Gemfile`:
 
 ```ruby
 group :jekyll_plugins do
@@ -107,12 +118,13 @@ end
 bundle install
 ```
 
-Then paste the contents of `examples/site-integration/_config.yml.example`
-into the site's `_config.yml`, adjusting the rules.
+### Option C — RubyGems (after publishing)
 
-> Alternatives: `git:` pointing to a repository, or publish to
-> RubyGems and use `gem "jekyll-front-matter-validator", "~> 0.2"` normally.
-> See `Gemfile.example` for all three formats.
+```ruby
+group :jekyll_plugins do
+  gem "jekyll-front-matter-validator", "~> 0.2"
+end
+```
 
 ## 2. Validation on `build` and `serve`
 
