@@ -65,12 +65,16 @@ files.each do |path|
   all_issues.concat(Jekyll::FrontMatterValidator.validate_all(fm, rules, file: rel_path, project_root: root))
 end
 
+RED = "\e[31m"
+GREEN = "\e[32m"
+RESET = "\e[0m"
+
 if all_issues.empty?
-  puts "\u2714 Front matter valid in #{files.size} file(s)."
+  puts "#{GREEN}\u2714 Front matter valid in #{files.size} file(s).#{RESET}"
   exit 0
 else
-  puts "\u2718 #{all_issues.size} front matter issue(s) found:\n\n"
-  all_issues.each { |i| puts "  #{i}" }
+  puts "#{RED}\u2718 #{all_issues.size} front matter issue(s) found:#{RESET}\n\n"
+  all_issues.each { |i| puts "  #{RED}#{i}#{RESET}" }
   puts
   exit 1
 end

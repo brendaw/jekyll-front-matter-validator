@@ -42,7 +42,7 @@ module Jekyll
         all_issues.each { |i| Jekyll.logger.error "  ", i.to_s }
 
         if fail_on_error
-          warn "Build failed: invalid front matter in #{all_issues.map(&:file).uniq.size} file(s)."
+          warn "\e[31mBuild failed: invalid front matter in #{all_issues.map(&:file).uniq.size} file(s).\e[0m"
           $stderr.flush
           exit!(1)
         end
