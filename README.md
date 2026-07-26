@@ -35,7 +35,7 @@ Get up and running in 5 minutes:
 cat >> Gemfile <<'EOF'
 
 group :jekyll_plugins do
-  gem "jekyll-front-matter-validator", git: "https://github.com/brendaw/jekyll-front-matter-validator"
+  gem "jekyll-front-matter-validator", git: "https://github.com/brendaw/jekyll-front-matter-validator", tag: "v0.3.0"
 end
 EOF
 
@@ -91,7 +91,7 @@ In the site's `Gemfile` (see `examples/site-integration/Gemfile.example`):
 
 ```ruby
 group :jekyll_plugins do
-  gem "jekyll-front-matter-validator", git: "https://github.com/brendaw/jekyll-front-matter-validator"
+  gem "jekyll-front-matter-validator", git: "https://github.com/brendaw/jekyll-front-matter-validator", tag: "v0.3.0"
 end
 ```
 

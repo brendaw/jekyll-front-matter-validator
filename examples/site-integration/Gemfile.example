@@ -6,11 +6,11 @@ gem "jekyll", "~> 4.3"
 
 group :jekyll_plugins do
   # Option A — from GitHub (recommended):
-  gem "jekyll-front-matter-validator", git: "https://github.com/brendaw/jekyll-front-matter-validator"
+  gem "jekyll-front-matter-validator", git: "https://github.com/brendaw/jekyll-front-matter-validator", tag: "v0.3.0"
 
   # Option B — vendored (local copy):
   # gem "jekyll-front-matter-validator", path: "vendor/jekyll-front-matter-validator"
 
   # Option C — after publishing to RubyGems:
-  # gem "jekyll-front-matter-validator", "~> 0.2"
+  # gem "jekyll-front-matter-validator", "~> 0.3"
 end
