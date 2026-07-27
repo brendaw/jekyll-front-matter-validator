@@ -61,7 +61,7 @@ bundle exec fmv-validate _posts/*.md  # specific files
 ```
 
 > See [Installation](#1-installation-in-your-jekyll-site) for alternative
-> install methods (git, RubyGems) and
+> install methods (git, vendored) and
 > [Schema reference](#schema-reference-front_matter_schema-in-_configyml)
 > for the full configuration reference.
 
@@ -117,14 +117,6 @@ end
 
 ```bash
 bundle install
-```
-
-### Option C — RubyGems (after publishing)
-
-```ruby
-group :jekyll_plugins do
-  gem "jekyll-front-matter-validator", "~> 0.3"
-end
 ```
 
 ## 2. Validation on `build` and `serve`
